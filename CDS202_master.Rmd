@@ -1,0 +1,59 @@
+---
+title: "CDS2020"
+author: "Sofie S. J."
+date: "9/29/2020"
+output: word_document
+---
+#Set working directory, load packages and data
+```{r setup, include=FALSE, message=FALSE}
+#Load library
+library(tidyverse)
+pacman::p_load(tidyverse, brms, dplyr, Hmisc, ggpubr, ggplot2, ggthemes, plyr, knitr)
+getwd()
+
+#Load functions
+source(here::here('functions', 'create_dummy_data.R'))
+source(here::here('functions', 'get_SIAS_CUSADOS_function.R'))
+source(here::here('functions', 'ploting.R'))
+source(here::here('functions', 'SAD_summary.R'))
+source(here::here('functions', 'Bayes_analysis.R'))
+
+```
+
+#Create or Load Data
+Create the data used for replication of this analysis
+```{r}
+if (file.exists(here::here('./data/anxiety_data.csv')) == TRUE) {
+  data <- read.csv(here::here('./data/anxiety_data.csv'))
+  } else {
+  data <- create_data()
+  }
+```
+
+# Data Wrangling
+Calculates SIAS and CUSADOS scores
+```{r}
+scores <- get_SIAS_CUSADOS(data)
+```
+
+#Data Visualisation
+Plot SIAS and CUSADOS
+```{r}
+plot_SAD_scales(scores)
+```
+
+#Data Summary
+how may are above the clinical theshold?
+```{r}
+SAD_summary_x <- SAD_summary(scores)
+```
+
+#Data Analysis
+Run an analysis to see if CUSADOS can predict SIAS
+```{r}
+SAD_m <- bayes_analysis(scores)
+summary(SAD_m)
+hypothesis(SAD_m, "CUSADOS_scaled >0")
+hypothesis(SAD_m, "CUSADOS_scaled >0.7")
+```
+
